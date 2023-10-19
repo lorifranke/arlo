@@ -59,10 +59,9 @@ class Logger:
         if (mode == 'file' or mode == 'both') and (log_path is None):
             raise ValueError('You specified \'mode\' equal to \'file\' but you did not provide \'log_path\'!')
 
-        """Add another option here that is for rest api:
-        if((mode == 'api' or mode == 'both') and (api_endpoint is None)):
+        # Add another option here that is for rest api:
+        if (mode == 'api' or mode == 'both') and (api_endpoint is None):
             raise ValueError('You specified \'mode\' equal to \'api\' but you did not provide \'api_endpoint\'!')
-        """
 
     def __repr__(self):
         return 'Logger(' + 'name_obj_logging=' + str(self.name_obj_logging) + ', verbosity=' + str(self.verbosity) \
@@ -134,11 +133,11 @@ class Logger:
         Based on the mode it either calls the method _to_console or _to_file or both.
         """
 
-        if ((self.mode == 'console') or (self.mode == 'both')):
+        if (self.mode == 'console') or (self.mode == 'both'):
             self._to_console(msg=msg, log_level=log_level)
-        if ((self.mode == 'file') or (self.mode == 'both')):
+        if (self.mode == 'file') or (self.mode == 'both'):
             self._to_file(msg=msg, log_level=log_level)
-        if ((self.mode == 'api') or (self.mode == 'both')):
+        if (self.mode == 'api') or (self.mode == 'both'):
             self._to_api(msg=msg, log_level=log_level)
 
     def info(self, msg):
@@ -151,7 +150,7 @@ class Logger:
         Logs the message with logging level 'INFO'.        
         """
 
-        if (self.verbosity >= 1):
+        if self.verbosity >= 1:
             self._log(msg=msg, log_level='INFO')
 
     def warning(self, msg):
