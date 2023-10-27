@@ -2,3 +2,8 @@
 .DS_Store
 .DS_Store?
 __pycache__/
+build
+__init__.py
+build.bak
+.idea
+arlo.egg-info

@@ -18,6 +18,7 @@ import json
 import os
 import uuid
 import requests
+import jsonpickle
 
 import numpy as np
 from abc import abstractmethod
@@ -139,6 +140,24 @@ class ModelGenerationMushroomOnline(ModelGeneration):
         self.update_dict_of_evals(current_epoch=0, single_episodes_eval=self.eval_metric.single_episode_evaluations,
                                   env=starting_env)
 
+        model_id = self.algo_params["mdp_info"].obj_name.split("_")
+        model_id = model_id[len(model_id) - 1].lower()
+        print(model_id)
+
+        run_id = os.getenv("RUN_ID")
+        run_model_id = str(uuid.uuid4())
+        os.environ["RUN_MODEL_ID"] = run_model_id
+        model_payload = {
+            "id": run_model_id,
+            "run_id": run_id,
+            "model_id": model_id,
+            "hyperparameters": "{}" if self.algo_params is None else jsonpickle.encode(self.algo_params),
+            "policy": "{}",
+            "status": "running",
+            "created_on": datetime.datetime.now().isoformat()
+        }
+        requests.post("http://localhost:8000/api/models", json=model_payload)
+
         self.logger.info(msg='Starting evaluation: ' + str(starting_eval))
 
         for n_epoch in range(self.algo_params['n_epochs'].current_actual_value):
@@ -169,6 +188,25 @@ class ModelGenerationMushroomOnline(ModelGeneration):
             self.update_dict_of_evals(current_epoch=n_epoch + 1,
                                       single_episodes_eval=self.eval_metric.single_episode_evaluations,
                                       env=starting_env)
+
+            log_payload = {
+                "id": str(uuid.uuid4()),
+                "run_id": os.getenv("RUN_ID"),
+                "run_model_id": run_model_id,
+                "phase": "test",
+                "epoch": str(n_epoch),
+                "iteration": 0,
+                "severity": "info",
+                "log": "Epoch finished.",
+                "state": "[0]",
+                "action": "0",
+                "reward": tmp_eval,
+                "created_on": datetime.datetime.now().isoformat()
+            }
+            requests.post("http://localhost:8000/api/logs", json=log_payload)
+
+        model_payload["status"] = "finished"
+        requests.post("http://localhost:8000/api/models", json=model_payload)
 
         self.is_learn_successful = True
         self.logger.info(msg='\'' + str(self.__class__.__name__) + '\' object learnt successfully!')
@@ -348,34 +386,34 @@ class ModelGenerationMushroomOnlineDQN(ModelGenerationMushroomOnline):
         super().__init__(eval_metric=eval_metric, obj_name=obj_name, seeder=seeder, log_mode=log_mode,
                          checkpoint_log_path=checkpoint_log_path, verbosity=verbosity, n_jobs=n_jobs, job_type=job_type)
 
-        run_model_id = str(uuid.uuid4())
-        os.environ["RUN_MODEL_ID"] = run_model_id
-        payload = {
-            "id": run_model_id,
-            "run_id": os.getenv("RUN_ID"),
-            "model_id": "dqn",
-            "hyperparameters": "{}" if algo_params is None else json.dumps(algo_params),
-            "policy": "{}",
-            "status": "running",
-            "created_on": datetime.datetime.now().isoformat()
-        }
-        requests.post("http://localhost:8000/api/models", json=payload)
-
-        payload = {
-            "id": str(uuid.uuid4()),
-            "run_id": os.getenv("RUN_ID"),
-            "run_model_id": run_model_id,
-            "phase": "train",
-            "episode": 0,
-            "iteration": 0,
-            "severity": "info",
-            "log": "Initializing DQN model...",
-            "state": "[0,1,2,3]",
-            "action": "12",
-            "reward": 10.3,
-            "created_on": datetime.datetime.now().isoformat()
-        }
-        requests.post("http://localhost:8000/api/logs", json=payload)
+        # run_model_id = str(uuid.uuid4())
+        # os.environ["RUN_MODEL_ID"] = run_model_id
+        # payload = {
+        #     "id": run_model_id,
+        #     "run_id": os.getenv("RUN_ID"),
+        #     "model_id": "dqn",
+        #     "hyperparameters": "{}" if algo_params is None else json.dumps(algo_params),
+        #     "policy": "{}",
+        #     "status": "running",
+        #     "created_on": datetime.datetime.now().isoformat()
+        # }
+        # requests.post("http://localhost:8000/api/models", json=payload)
+        #
+        # payload = {
+        #     "id": str(uuid.uuid4()),
+        #     "run_id": os.getenv("RUN_ID"),
+        #     "run_model_id": run_model_id,
+        #     "phase": "train",
+        #     "episode": 0,
+        #     "iteration": 0,
+        #     "severity": "info",
+        #     "log": "Initializing DQN model...",
+        #     "state": "[0,1,2,3]",
+        #     "action": "12",
+        #     "reward": 10.3,
+        #     "created_on": datetime.datetime.now().isoformat()
+        # }
+        # requests.post("http://localhost:8000/api/logs", json=payload)
 
         self.works_on_online_rl = True
         self.works_on_offline_rl = False
