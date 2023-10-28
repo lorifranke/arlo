@@ -147,11 +147,13 @@ class ModelGenerationMushroomOnline(ModelGeneration):
         run_id = os.getenv("RUN_ID")
         run_model_id = str(uuid.uuid4())
         os.environ["RUN_MODEL_ID"] = run_model_id
+        hyperparameters = copy.deepcopy(self.algo_params)
+        del hyperparameters["replay_memory"]
         model_payload = {
             "id": run_model_id,
             "run_id": run_id,
             "model_id": model_id,
-            "hyperparameters": "{}" if self.algo_params is None else jsonpickle.encode(self.algo_params),
+            "hyperparameters": jsonpickle.encode(hyperparameters),
             "policy": "{}",
             "status": "running",
             "created_on": datetime.datetime.now().isoformat()
@@ -385,35 +387,6 @@ class ModelGenerationMushroomOnlineDQN(ModelGenerationMushroomOnline):
 
         super().__init__(eval_metric=eval_metric, obj_name=obj_name, seeder=seeder, log_mode=log_mode,
                          checkpoint_log_path=checkpoint_log_path, verbosity=verbosity, n_jobs=n_jobs, job_type=job_type)
-
-        # run_model_id = str(uuid.uuid4())
-        # os.environ["RUN_MODEL_ID"] = run_model_id
-        # payload = {
-        #     "id": run_model_id,
-        #     "run_id": os.getenv("RUN_ID"),
-        #     "model_id": "dqn",
-        #     "hyperparameters": "{}" if algo_params is None else json.dumps(algo_params),
-        #     "policy": "{}",
-        #     "status": "running",
-        #     "created_on": datetime.datetime.now().isoformat()
-        # }
-        # requests.post("http://localhost:8000/api/models", json=payload)
-        #
-        # payload = {
-        #     "id": str(uuid.uuid4()),
-        #     "run_id": os.getenv("RUN_ID"),
-        #     "run_model_id": run_model_id,
-        #     "phase": "train",
-        #     "episode": 0,
-        #     "iteration": 0,
-        #     "severity": "info",
-        #     "log": "Initializing DQN model...",
-        #     "state": "[0,1,2,3]",
-        #     "action": "12",
-        #     "reward": 10.3,
-        #     "created_on": datetime.datetime.now().isoformat()
-        # }
-        # requests.post("http://localhost:8000/api/logs", json=payload)
 
         self.works_on_online_rl = True
         self.works_on_offline_rl = False
