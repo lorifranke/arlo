@@ -146,9 +146,9 @@ class ModelGenerationMushroomOnline(ModelGeneration):
 
         run_id = os.getenv("RUN_ID")
         run_model_id = str(uuid.uuid4())
-        os.environ["RUN_MODEL_ID"] = run_model_id
         hyperparameters = copy.deepcopy(self.algo_params)
-        del hyperparameters["replay_memory"]
+        if "replay_memory" in hyperparameters:
+            del hyperparameters["replay_memory"]
         model_payload = {
             "id": run_model_id,
             "run_id": run_id,
