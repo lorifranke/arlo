@@ -14,7 +14,6 @@ from the Class ModelGenerationMushroomOnlineAC.
 
 import copy
 import datetime
-import json
 import os
 import uuid
 import requests
@@ -158,7 +157,7 @@ class ModelGenerationMushroomOnline(ModelGeneration):
             "status": "running",
             "created_on": datetime.datetime.now().isoformat()
         }
-        requests.post("http://localhost:8000/api/models", json=model_payload)
+        requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/models", json=model_payload)
 
         self.logger.info(msg='Starting evaluation: ' + str(starting_eval))
 
@@ -205,10 +204,10 @@ class ModelGenerationMushroomOnline(ModelGeneration):
                 "reward": tmp_eval,
                 "created_on": datetime.datetime.now().isoformat()
             }
-            requests.post("http://localhost:8000/api/logs", json=log_payload)
+            requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/logs", json=log_payload)
 
         model_payload["status"] = "finished"
-        requests.post("http://localhost:8000/api/models", json=model_payload)
+        requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api.models", json=model_payload)
 
         self.is_learn_successful = True
         self.logger.info(msg='\'' + str(self.__class__.__name__) + '\' object learnt successfully!')
