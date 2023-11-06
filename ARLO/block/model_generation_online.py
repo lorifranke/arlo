@@ -18,6 +18,7 @@ import os
 import uuid
 import requests
 import jsonpickle
+import zlib
 
 import numpy as np
 from abc import abstractmethod
@@ -203,9 +204,9 @@ class ModelGenerationMushroomOnline(ModelGeneration):
                     "iteration": i,
                     "severity": "info",
                     "log": "Epoch finished.",
-                    "state": str(eps_states[i]),
-                    "action": str(eps_actions[i]),
-                    "score": str(eps_scores[i]),
+                    "state": zlib.compress(str(eps_states[i]).encode()),
+                    "action": zlib.compress(str(eps_actions[i]).encode()),
+                    "score": zlib.compress(str(eps_scores[i]).encode()),
                     "reward": tmp_eval,
                     "created_on": datetime.datetime.now().isoformat()
                 })
