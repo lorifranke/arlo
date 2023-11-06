@@ -204,9 +204,9 @@ class ModelGenerationMushroomOnline(ModelGeneration):
                     "iteration": i,
                     "severity": "info",
                     "log": "Epoch finished.",
-                    "state": zlib.compress(str(eps_states[i])),
-                    "action": zlib.compress(str(eps_actions[i])),
-                    "score": zlib.compress(str(eps_scores[i])),
+                    "state": jsonpickle.encode(zlib.compress(str(eps_states[i]).encode())),
+                    "action": jsonpickle.encode(zlib.compress(str(eps_actions[i]).encode())),
+                    "score": jsonpickle.encode(zlib.compress(str(eps_scores[i]).encode())),
                     "reward": tmp_eval,
                     "created_on": datetime.datetime.now().isoformat()
                 })
