@@ -134,7 +134,9 @@ class ModelGenerationMushroomOnline(ModelGeneration):
             # If this method is called then in the metric DiscountedReward you can use batch_eval
             res.make_policy_deterministic()
 
-        starting_eval = self.eval_metric.evaluate(block_res=res, env=starting_env)
+        starting_eval = self.eval_metric.evaluate(
+            block_res=res, env=starting_env)
+
         # update dict_of_evals:
         self.update_dict_of_evals(current_epoch=0, single_episodes_eval=self.eval_metric.single_episode_evaluations,
                                   env=starting_env)
@@ -148,6 +150,7 @@ class ModelGenerationMushroomOnline(ModelGeneration):
         hyperparameters = copy.deepcopy(self.algo_params)
         if "replay_memory" in hyperparameters:
             del hyperparameters["replay_memory"]
+
         model_payload = {
             "id": run_model_id,
             "run_id": run_id,
@@ -181,7 +184,7 @@ class ModelGenerationMushroomOnline(ModelGeneration):
                 # If this method is called then in the metric DiscountedReward you can use batch_eval
                 res.make_policy_deterministic()
 
-            tmp_eval = self.eval_metric.evaluate(block_res=res, env=starting_env)
+            tmp_eval, eps_eval, eps_actions, eps_states, eps_scores = self.eval_metric.evaluate(block_res=res, env=starting_env)
 
             self.logger.info(msg='Current evaluation: ' + str(tmp_eval))
 
@@ -189,22 +192,24 @@ class ModelGenerationMushroomOnline(ModelGeneration):
             self.update_dict_of_evals(current_epoch=n_epoch + 1,
                                       single_episodes_eval=self.eval_metric.single_episode_evaluations,
                                       env=starting_env)
-
-            log_payload = {
-                "id": str(uuid.uuid4()),
-                "run_id": os.getenv("RUN_ID"),
-                "run_model_id": run_model_id,
-                "phase": "test",
-                "epoch": str(n_epoch),
-                "iteration": 0,
-                "severity": "info",
-                "log": "Epoch finished.",
-                "state": "[0]",
-                "action": "0",
-                "reward": tmp_eval,
-                "created_on": datetime.datetime.now().isoformat()
-            }
-            requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/logs", json=log_payload)
+            logs = []
+            for i in range(len(eps_eval)):
+                logs.append({
+                    "id": str(uuid.uuid4()),
+                    "run_id": os.getenv("RUN_ID"),
+                    "run_model_id": run_model_id,
+                    "phase": "test",
+                    "epoch": str(n_epoch),
+                    "iteration": i,
+                    "severity": "info",
+                    "log": "Epoch finished.",
+                    "state": str(eps_states[i]),
+                    "action": str(eps_actions[i]),
+                    "score": str(eps_scores[i]),
+                    "reward": tmp_eval,
+                    "created_on": datetime.datetime.now().isoformat()
+                })
+            requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/logs", json=logs)
 
         model_payload["status"] = "finished"
         requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/models", json=model_payload)
