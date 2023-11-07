@@ -152,7 +152,7 @@ class Tuner(AbstractUnit, ABC):
                 self.logger.error(msg='There was an error in the \'learn\' method of an agent!')
                 return None, None
             else:
-                best_agent_eval = self.eval_metric.evaluate(block_res=best_agent_res, train_data=train_data, env=env)
+                best_agent_eval, _, _, _, _ = self.eval_metric.evaluate(block_res=best_agent_res, train_data=train_data, env=env)
 
                 self.is_tune_successful = True
                 self.logger.info(msg='Tuning complete!')

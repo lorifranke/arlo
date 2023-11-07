@@ -123,7 +123,7 @@ class OnlineRLPipeline(RLPipeline):
                     policy = tmp_res.policy         
                     #computes policy evaluation:
                     self.logger.info(msg='Now evaluating learnt policy...')
-                    res_eval = tmp_block.eval_metric.evaluate(block_res=tmp_res, block=tmp_block, env=env)                    
+                    res_eval, _, _, _, _ = tmp_block.eval_metric.evaluate(block_res=tmp_res, block=tmp_block, env=env)
                     policy_eval = {'eval_mean': res_eval, 'eval_var': tmp_block.eval_metric.eval_var}
                     self.logger.info(msg='Mean of policy evaluation: '+str(policy_eval['eval_mean']))
                     self.logger.info(msg='Standard deviation of policy evaluation: '+str(np.sqrt(policy_eval['eval_var'])))

@@ -135,7 +135,7 @@ class ModelGenerationMushroomOnline(ModelGeneration):
             # If this method is called then in the metric DiscountedReward you can use batch_eval
             res.make_policy_deterministic()
 
-        starting_eval = self.eval_metric.evaluate(
+        starting_eval, _, _, _, _ = self.eval_metric.evaluate(
             block_res=res, env=starting_env)
 
         # update dict_of_evals:

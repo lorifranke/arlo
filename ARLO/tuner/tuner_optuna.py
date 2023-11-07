@@ -170,7 +170,7 @@ class TunerOptuna(Tuner):
                 self.data = tmp_res.train_data
                 self.env = tmp_res.env
         
-        tmp_agent_eval = self.eval_metric.evaluate(block_res=tmp_res, block=my_agent, train_data=self.data, env=self.env)
+        tmp_agent_eval, _, _, _, _ = self.eval_metric.evaluate(block_res=tmp_res, block=my_agent, train_data=self.data, env=self.env)
         
         if((trial.number % self.output_save_periodicity) == 0):
             self.logger.debug(msg='Agent: '+str(my_agent.obj_name)+' Evaluation: '+str(tmp_agent_eval))
