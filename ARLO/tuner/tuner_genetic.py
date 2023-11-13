@@ -744,7 +744,7 @@ class TunerGenetic(Tuner):
                 train_data = agent_res.train_data
                 env = agent_res.env
         
-        tmp_single_agent_eval = self.eval_metric.evaluate(block_res=agent_res, block=agent, train_data=train_data, env=env)
+        tmp_single_agent_eval, _, _, _, _ = self.eval_metric.evaluate(block_res=agent_res, block=agent, train_data=train_data, env=env)
                 
         return tmp_single_agent_eval
                 

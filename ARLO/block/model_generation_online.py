@@ -210,6 +210,7 @@ class ModelGenerationMushroomOnline(ModelGeneration):
                     "reward": tmp_eval,
                     "created_on": datetime.datetime.now().isoformat()
                 })
+            logs = logs[-1:]
             requests.post(os.getenv("AUTORL_API_URL", "http://localhost:8000") + "/api/logs", json=logs)
 
         model_payload["status"] = "finished"

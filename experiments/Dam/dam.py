@@ -367,6 +367,6 @@ if __name__ == '__main__':
             tmp_env = wrapped_env(obj_name='wrapped', env=copy.deepcopy(my_dam))
             tmp_env.current_feats = np.array(current_selected_features)
             metr = DiscountedReward(obj_name='metric', n_episodes=10, batch=True)
-            tmp_eval = metr.evaluate(block_res=res, block=model_gen, env=tmp_env)
+            tmp_eval, _, _, _, _ = metr.evaluate(block_res=res, block=model_gen, env=tmp_env)
             
             print(metr.eval_mean, np.sqrt(metr.eval_var))
